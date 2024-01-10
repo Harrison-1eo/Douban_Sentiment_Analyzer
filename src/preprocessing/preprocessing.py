@@ -36,11 +36,32 @@ def remove_stop_words(words: list, stop_words_path: str) -> list:
     words = [word for word in words if word != []]
     return words
 
+# 获得词频，并按照词频降序排序，输出前n个词
+# words: list of list of str，每个元素是一条评论，每条评论是一个词列表
+# n: int，输出前n个词，及其词频
+def get_word_frequency(words: list, n: int) -> list:
+    word_frequency = {}
+    for word in words:
+        for w in word:
+            if w not in word_frequency:
+                word_frequency[w] = 1
+            else:
+                word_frequency[w] += 1
+    word_frequency = sorted(word_frequency.items(), key=lambda x: x[1], reverse=True)
+    return [w for w in word_frequency[:n]]
+
 if __name__ == "__main__":
     comments = get_comment_content('./res/comments/剧情/肖申克的救赎_200条影评.txt')
+    comments = comments + get_comment_content('./res/comments/剧情/霸王别姬_200条影评.txt')
+    comments = comments + get_comment_content('./res/comments/剧情/这个杀手不太冷_200条影评.txt')
+    comments = comments + get_comment_content('res\comments\剧情\泰坦尼克号_200条影评.txt')
     comments = cut_words(comments)
     comments = remove_stop_words(comments, 'res\dicts\stop-words.txt')
     for index, c in enumerate(comments):
         print(index)
         print(c)
         print('---------------------------')
+
+    word_frequency = get_word_frequency(comments, 200)
+    for w in word_frequency:
+        print(w)
