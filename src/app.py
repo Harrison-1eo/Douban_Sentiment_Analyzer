@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.messagebox as messagebox
 import sys
 import os
-sys.path.append("..")
+sys.path.append(".")
 sys.path.append("src")
 from crawling import douban_comments_get as dcg
 from emotion_analysis.SO_PMI import SO_PMI_cal as spc
@@ -24,6 +24,12 @@ class App(tk.Tk):
         # 添加一个按钮：关于
         self.btn_about = tk.Button(self, text="关于", command=self.about)
         self.btn_about.pack()
+
+        # 检测关闭窗口事件
+        def close():
+            self.destroy()
+            exit()
+        self.protocol("WM_DELETE_WINDOW", close)
 
     def about(self):
         # 一个新窗口，用于显示关于信息
