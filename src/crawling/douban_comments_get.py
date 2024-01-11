@@ -48,7 +48,7 @@ def get_comments_by_id(id, num):
     final_comments = []
 
     for comment in comments_:
-        final_comments.append(comment.text.strip())
+        final_comments.append(comment.text.replace('\n', ' ').replace('\r', ' ').replace(',', '，').strip())
 
     return final_comments
 

@@ -49,21 +49,35 @@ class App(tk.Tk):
         douban_input = tk.Entry(douban_window)
         douban_input.pack()
 
+        douban_input.insert(0, "1292722")
+
+        # 一个选项，用于选择聚类算法
+        # 一个标签，用于显示聚类算法
+        text = tk.Label(douban_window, text="请选择聚类算法：")
+        text.pack()
+        cluster_algorithm = tk.StringVar()
+        cluster_algorithm.set("K-Means")
+        cluster_algorithm_menu = tk.OptionMenu(douban_window, cluster_algorithm, "DBSCAN", "K-Means")
+        cluster_algorithm_menu.pack()
+
         # 一个选项，用于选择情感分析算法
         # 一个标签，用于显示情感分析算法
         text = tk.Label(douban_window, text="请选择情感分析算法：")
         text.pack()
         # 一个下拉菜单，用于选择情感分析算法fv  qij-;/[x ]
-        douban_algorithm = tk.StringVar()
-        douban_algorithm.set("SO-PMI")
-        douban_algorithm_menu = tk.OptionMenu(douban_window, douban_algorithm, "SO-PMI", "朴素字典", "TextCNN")
-        douban_algorithm_menu.pack()
+        emotion_algorithm = tk.StringVar()
+        emotion_algorithm.set("SO-PMI")
+        emotion_algorithm_menu = tk.OptionMenu(douban_window, emotion_algorithm, "SO-PMI", "朴素字典", "TextCNN")
+        emotion_algorithm_menu.pack()
 
         # 一个按钮，用于开始分析，点击后调用 douban_analyze 函数
         douban_btn = tk.Button(douban_window, text="开始分析", 
                                command=lambda: self.douban_get_data(
                                    douban_input.get(), 
-                                   {"sentiment_algorithm": douban_algorithm.get()}
+                                   {
+                                        "cluster_algorithm": cluster_algorithm.get(),
+                                        "sentiment_algorithm": emotion_algorithm.get()
+                                    }
                                    ))
         douban_btn.pack()
 
@@ -97,7 +111,6 @@ class App(tk.Tk):
         scores = []
         if func_args["sentiment_algorithm"] == "SO-PMI":
             sopmi = spc.SoPmiSentiment()
-        
             for index, c in enumerate(comments):
                 c_cut = sopmi.word_cut(c)
                 scores.append(sopmi.score(c_cut))
@@ -121,6 +134,7 @@ class App(tk.Tk):
         res = {
             "id": id,
             "sentiment_algorithm": func_args["sentiment_algorithm"],
+            "cluster_algorithm": func_args["cluster_algorithm"],
             "comments": comments,
             "scores": scores,
             "good_comments": good_comments,
@@ -133,16 +147,24 @@ class App(tk.Tk):
     def douban_show_res(self, res):
         global pie_img
         global cloud_img
+        global cluster_img
         # 保存到文件的路径，保存在当前目录下的 save 文件夹中，文件夹不存在则创建，
         # 为了防止文件名重复，文件名为当前时间戳，格式为：年-月-日-时-分-秒
         path = "save/" + res['id'] + "/"
         if not os.path.exists(path):
             os.makedirs(path)
 
+        comments_scores = [(res['comments'][index], res['scores'][index]) for index, c in enumerate(res['comments'])]
+        # 保存到文件
+        with open(path + "comments_res.csv", "w", encoding="utf-8") as f:
+            f.write("comments,scores\n")
+            for i in range(len(comments_scores)):
+                f.write(f"{comments_scores[i][0]},{comments_scores[i][1]}\n")
+
         # 新建一个窗口，用于展示分析结果
         douban_res_window = tk.Toplevel(self)
         douban_res_window.title("分析结果")
-        douban_res_window.geometry("600x400")
+        douban_res_window.geometry("600x800")
         douban_res_window.resizable(0, 0)
         # 允许用户调节窗口大小
         douban_res_window.resizable(True, True)
@@ -187,7 +209,7 @@ class App(tk.Tk):
 
         # 一个标签，用于显示饼状图
         pie_img = ImageTk.PhotoImage(load_and_resize_image(path + "pie.png"))
-        pie_img_label = tk.Label(douban_res_window, image=pie_img, width=200, height=200)
+        pie_img_label = tk.Label(douban_res_window, image=pie_img)
         pie_img_label.pack()
         
         # 展示词云图
@@ -198,23 +220,34 @@ class App(tk.Tk):
 
         # 一个标签，用于显示词云图
         cloud_img = ImageTk.PhotoImage(load_and_resize_image(path + "cloud.png"))
-        cloud_img_label = tk.Label(douban_res_window, image=cloud_img, width=200, height=200)
+        cloud_img_label = tk.Label(douban_res_window, image=cloud_img)
         cloud_img_label.pack()
 
-        comments = [(res['comments'][index], res['scores'][index]) for index, c in enumerate(res['comments'])]
-        # 保存到文件
-        with open(path + "comments_res.csv", "w", encoding="utf-8") as f:
-            f.write("comments,scores\n")
-            for i in range(len(comments)):
-                f.write(f"{comments[i][0]},{comments[i][1]}\n")
+        # 展示聚类图
+        if res["cluster_algorithm"] == "K-Means":
+            from cluster import kmeans as km
+            km.draw_kmeans(res['comments'], path + "cluster.png")
+        elif res["cluster_algorithm"] == "DBSCAN":
+            from cluster import dbscan as db
+            db.draw_dbscan(res['comments'], path + "cluster.png")
+        else:
+            messagebox.showinfo("提示", "未知的聚类算法")
+        # 一个标签，用于显示聚类图
+        cluster_text = tk.Label(douban_res_window, text="聚类图：")
+        cluster_text.pack()
+
+        # 一个标签，用于显示聚类图
+        cluster_img = ImageTk.PhotoImage(load_and_resize_image(path + "cluster.png"))
+        cluster_img_label = tk.Label(douban_res_window, image=cluster_img)
+        cluster_img_label.pack()
 
         if res["sentiment_algorithm"] != "TextCNN":
             # 显示正面评论得分最高的十条评论
             good_comments_text = tk.Label(douban_res_window, text="正面评论得分最高的十条评论：")
             good_comments_text.pack()
-            comments.sort(key=lambda x: x[1], reverse=True)
+            comments_scores.sort(key=lambda x: x[1], reverse=True)
             for i in range(10):
-                good_comment_text = tk.Label(douban_res_window, text=f"{comments[i][0]} >>> 得分：{comments[i][1]}")
+                good_comment_text = tk.Label(douban_res_window, text=f"{comments_scores[i][0]} >>> 得分：{comments_scores[i][1]}")
                 good_comment_text.pack()
 
     
