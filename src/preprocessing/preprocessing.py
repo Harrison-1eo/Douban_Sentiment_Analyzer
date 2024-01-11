@@ -15,7 +15,7 @@ def get_comment_content(file_path: str) -> list:
 def cut_words(content: list) -> list:
     allpuncs = "，_《。》、？；：‘’＂“”【「】」·！@￥…（）—,<.>/?;:\'\"[]{}~`!@#$%^&*()-=\+] \n\t\r"
     allpuncs = list(allpuncs[::])
-    print(allpuncs)
+    # print(allpuncs)
     words = []
     for c in content:
         words.append(jieba.lcut(c))
@@ -32,7 +32,14 @@ def remove_stop_words(words: list, stop_words_path: str) -> list:
     with open(stop_words_path, 'r', encoding='utf-8') as f:
         stop_words = f.read()
         stop_words = stop_words.split('\n')
-    words = [[w for w in word if w not in stop_words] for word in words]
+    
+    stop_words_dict = {}
+    for w in stop_words:
+        stop_words_dict[w] = 1
+
+    for index, word in enumerate(words):
+        words[index] = [w for w in word if w not in stop_words_dict]
+    
     words = [word for word in words if word != []]
     return words
 
@@ -51,10 +58,16 @@ def get_word_frequency(words: list, n: int) -> list:
     return [w for w in word_frequency[:n]]
 
 if __name__ == "__main__":
-    comments = get_comment_content('./res/comments/剧情/肖申克的救赎_200条影评.txt')
-    comments = comments + get_comment_content('./res/comments/剧情/霸王别姬_200条影评.txt')
-    comments = comments + get_comment_content('./res/comments/剧情/这个杀手不太冷_200条影评.txt')
-    comments = comments + get_comment_content('res\comments\剧情\泰坦尼克号_200条影评.txt')
+    comments = []
+
+    # 获取评论内容
+    # 遍历'./res/comments'所有文件夹下的文件
+    import os
+    for root, dirs, files in os.walk('./res/comments'):
+        for file in files:
+            print(os.path.join(root, file))
+            comments += get_comment_content(os.path.join(root, file))
+
     comments = cut_words(comments)
     comments = remove_stop_words(comments, 'res\dicts\stop-words.txt')
     for index, c in enumerate(comments):
@@ -63,5 +76,8 @@ if __name__ == "__main__":
         print('---------------------------')
 
     word_frequency = get_word_frequency(comments, 200)
-    for w in word_frequency:
-        print(w)
+    # 输出到文件中
+    with open('res\dicts\extra.txt', 'w+', encoding='utf-8') as f:
+        for w in word_frequency:
+            f.write(w[0] + '\t' + 'pos' + '\n')
+
