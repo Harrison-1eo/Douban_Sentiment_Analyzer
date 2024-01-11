@@ -75,7 +75,7 @@ def Cluster_dbscan(file_path='res\\comments\\剧情\\千与千寻_200条影评.t
             token = jieba.posseg.cut(word)
             for x in token:
                 if x.flag == 'n' or x.flag == 'v' or x.flag == 'a':
-                    print('666')
+                    # print('666')
                     sentiment_words_.append(word)
                     break
 
@@ -113,6 +113,80 @@ def Cluster_dbscan(file_path='res\\comments\\剧情\\千与千寻_200条影评.t
     plt.xlabel("feature space for the 1st feature")
     plt.ylabel("feature space for the 2nd feature")
     plt.savefig(save_path + '_' + file_name + '_DBSCAN.png')
+
+def draw_dbscan(comments_list, save_path):
+    corpus = []
+    for comment in comments_list:
+        sentence_seged = jieba.posseg.cut(comment.strip())
+        outstr = ''
+        for x in sentence_seged:
+            if x.flag == 'n' or x.flag == 'v' or x.flag == 'a':
+                outstr += "{},".format(x.word)
+        corpus.append(outstr)
+    with open('res\\dicts\\sentiment-words.txt', 'r', encoding='utf-8') as f1:
+        sentiment_words = f1.readlines()
+        # 去除英文和空格和标点
+        sentiment_words = [word.strip() for word in sentiment_words]
+
+    for i in range(len(sentiment_words)):
+        word = sentiment_words[i]
+        index = word.index(',')
+        word = word[0:index]
+        sentiment_words[i] = word
+
+    vectorizer = CountVectorizer(vocabulary=sentiment_words, min_df=3)
+    X = vectorizer.fit_transform(corpus)
+    feature_names = vectorizer.get_feature_names_out()
+    counts = X.toarray().sum(axis=0)
+    sentiment_words_ = []
+    # 输出特征词和对应的次数
+    for word, count in zip(feature_names, counts):
+        if count > 0:
+            sentiment_words_.append(word)
+    # print('sentiment_words_len', sentiment_words_.__len__())
+
+    vectorizer2 = CountVectorizer(min_df=5)
+    transformer2 = TfidfTransformer()
+    tfidf2 = transformer2.fit_transform(vectorizer2.fit_transform(corpus))
+    word2 = vectorizer2.get_feature_names_out()
+    # print('word2', word2)
+    for word in word2:
+        if word not in sentiment_words_:
+            token = jieba.posseg.cut(word)
+            for x in token:
+                if x.flag == 'n' or x.flag == 'v' or x.flag == 'a':
+                    # print('666')
+                    sentiment_words_.append(word)
+                    break
+    # print('sentiment_words_', sentiment_words_)
+    # print('sentiment_words_len', sentiment_words_.__len__())
+
+    vectorizer = CountVectorizer(vocabulary=sentiment_words_)
+
+    transformer = TfidfTransformer()
+    tfidf = transformer.fit_transform(vectorizer.fit_transform(corpus))
+    word = vectorizer.get_feature_names_out()
+    weight = tfidf.toarray()
+    db = DBSCAN(eps=eps, min_samples=min_samples)
+    # 进行聚类
+    db.fit(weight)
+    # 聚类结果
+    labels = db.labels_
+
+    # 每个样本所属的簇
+    print("每个样本所属的簇:", labels)
+
+    # 绘制聚类图片
+    pca = PCA(n_components=2).fit(weight)
+    datapoint = pca.transform(weight)
+    plt.figure(figsize=(8, 5))
+    plt.figure(1)
+    plt.clf()
+    plt.scatter(datapoint[:, 0], datapoint[:, 1], c=labels, cmap=plt.cm.nipy_spectral, edgecolor='k')
+    plt.title("DBSCAN")
+    plt.xlabel("feature space for the 1st feature")
+    plt.ylabel("feature space for the 2nd feature")
+    plt.savefig(save_path)
 
 if __name__ == '__main__':
     folder_path1 = 'res\\comments\\剧情'
