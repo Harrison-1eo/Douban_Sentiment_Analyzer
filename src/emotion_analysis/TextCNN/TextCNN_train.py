@@ -1,3 +1,10 @@
+import torch
+import torch.nn as nn
+import torch.utils.data as Data
+import torch.optim as optim
+import torch.nn.functional as F
+import numpy as np
+
 root_path="res\\dicts\\textcnn\\"
 train_path="train.txt"
 import pandas as pd
@@ -53,13 +60,6 @@ def tokenizer():
         inputs.append(temp)
     return inputs
 data_input = tokenizer()
-
-import torch
-import torch.nn as nn
-import torch.utils.data as Data
-import torch.optim as optim
-import torch.nn.functional as F
-import numpy as np
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device="cpu"
