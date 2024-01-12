@@ -109,12 +109,12 @@ def Cluster_dbscan(file_path='res\\comments\\剧情\\千与千寻_200条影评.t
     plt.figure(1)
     plt.clf()
     plt.scatter(datapoint[:, 0], datapoint[:, 1], c=labels, cmap=plt.cm.nipy_spectral, edgecolor='k')
-    plt.title("DBSCAN")
+    plt.title("DBSCAN " + file_name)
     plt.xlabel("feature space for the 1st feature")
     plt.ylabel("feature space for the 2nd feature")
     plt.savefig(save_path + '_' + file_name + '_DBSCAN.png')
 
-def draw_dbscan(comments_list, save_path):
+def draw_dbscan(comments_list, save_path,eps=0.05, min_samples=3):
     corpus = []
     for comment in comments_list:
         sentence_seged = jieba.posseg.cut(comment.strip())
@@ -183,7 +183,7 @@ def draw_dbscan(comments_list, save_path):
     plt.figure(1)
     plt.clf()
     plt.scatter(datapoint[:, 0], datapoint[:, 1], c=labels, cmap=plt.cm.nipy_spectral, edgecolor='k')
-    plt.title("DBSCAN")
+    plt.title("DBSCAN " + file_name)
     plt.xlabel("feature space for the 1st feature")
     plt.ylabel("feature space for the 2nd feature")
     plt.savefig(save_path)
