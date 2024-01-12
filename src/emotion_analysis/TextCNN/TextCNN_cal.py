@@ -98,7 +98,7 @@ def predict(commands):
 
 if __name__ == '__main__':
     import sys
-    sys.path.append('src\preprocessing')
+    sys.path.append('src')
     import preprocessing as pp
     comments = pp.get_comment_content('./res/comments/剧情/泰坦尼克号_200条影评.txt')
 
@@ -107,8 +107,14 @@ if __name__ == '__main__':
         print(c, scores[index])
 
     good_comments = [c for index, c in enumerate(comments) if scores[index] > 0]
-    bad_comments = [c for index, c in enumerate(comments) if scores[index] < 0]
-    mid_comments = [c for index, c in enumerate(comments) if scores[index] == 0]
+    bad_comments = [c for index, c in enumerate(comments) if scores[index] == 0]
     print(f'正面评论数：{len(good_comments)}')
     print(f'负面评论数：{len(bad_comments)}')
-    print(f'中性评论数：{len(mid_comments)}')
+
+    from util import draw_pie_chart
+    draw_pie_chart(
+        [len(good_comments), len(bad_comments)],
+        ['正面评论', '负面评论'], 
+        '泰坦尼克号_200条影评情感分析结果饼图',
+        'pie_chart.png'
+    )
