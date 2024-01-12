@@ -4,6 +4,8 @@ from gensim import corpora, models
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 import os
+import matplotlib
+matplotlib.rc("font",family='YouYuan')
 # Global Dictionary
 new_words = ['奥预赛', '折叠屏']  # 新词
 stopwords = {' ', '再', '的', '们', '为', '时', '：', '，', ',', '是', '了'}  # 停用词

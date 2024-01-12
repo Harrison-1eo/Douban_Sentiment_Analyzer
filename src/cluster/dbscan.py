@@ -18,6 +18,8 @@ import math
 import codecs
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
+import matplotlib
+matplotlib.rc("font",family='YouYuan')
 # import hdbscan
 
 def Cluster_dbscan(file_path='res\\comments\\剧情\\千与千寻_200条影评.txt', file_name='千与千寻', save_path='res\\output\\cluster\\kmeans\\' ,eps=0.05, min_samples=3):
