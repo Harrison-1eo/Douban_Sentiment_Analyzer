@@ -1,15 +1,25 @@
-import tkinter as tk
-import tkinter.messagebox as messagebox
 import sys
 import os
+
 sys.path.append(".")
 sys.path.append("src")
-from crawling import douban_comments_get as dcg
-from crawling import douban_info_get as dig
-from emotion_analysis.SO_PMI import SO_PMI_cal as spc
-from emotion_analysis.lexicon_weighted import LWS as lws
-from util import *
-from PIL import Image,ImageTk
+
+import tkinter.messagebox as messagebox
+try:
+    import tkinter as tk
+    from crawling import douban_comments_get as dcg
+    from crawling import douban_info_get as dig
+    from emotion_analysis.SO_PMI import SO_PMI_cal as spc
+    from emotion_analysis.lexicon_weighted import LWS as lws
+    from util import *
+    from PIL import Image,ImageTk
+    import pandas, numpy, matplotlib, sklearn, jieba, gensim, wordcloud
+    from bs4 import BeautifulSoup
+except Exception as e:
+    print(e)
+    print("请安装所需的依赖库")
+    messagebox.showinfo("提示", "请安装所需的依赖库\n"+str(e))
+    exit()
 
 class App(tk.Tk):
     def __init__(self):

@@ -36,7 +36,7 @@ with open(os.path.join(root_path+"word_freq.txt"), encoding='utf-8') as fin:
     vocab = [i.strip() for i in fin]
 vocab=set(vocab)
 word2idx = {i:index for index, i in enumerate(vocab)}
-idx2word = {index:i for index, i in enumerate(vocab)}#没有想到列表竟然可以枚举。
+idx2word = {index:i for index, i in enumerate(vocab)}
 vocab_size = len(vocab)
 print(len(vocab))
 

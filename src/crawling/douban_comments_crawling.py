@@ -1,8 +1,3 @@
-# coding:   utf-8
-# 作者(@Author):   榕城候佳人
-# 创建时间(@Created_time): 2022/11/7 19:02
-# 修改时间(@Modified_time): 2022/11/17 17:30
-# 链接：https://zhuanlan.zhihu.com/p/587020316
 
 """
     爬取豆瓣电影评论
