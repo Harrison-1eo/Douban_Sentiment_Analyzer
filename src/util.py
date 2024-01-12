@@ -3,10 +3,10 @@ import pandas as pd
 from matplotlib import font_manager
 import wordcloud
 import sys
-sys.path.append("..")
+sys.path.append(".")
 sys.path.append("src")
-# from Preprocessing import Preprocessing as pp
-from src.app.Preprocessing import preprocessing as pp
+from src import preprocessing as pp
+
 # 汉字字体，优先使用楷体，找不到则使用黑体
 plt.rcParams['font.sans-serif'] = ['simsun', 'Kaitt', 'SimHei']
  

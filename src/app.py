@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.messagebox as messagebox
 import sys
 import os
-sys.path.append("..")
+sys.path.append(".")
 sys.path.append("src")
 from crawling import douban_comments_get as dcg
 from emotion_analysis.SO_PMI import SO_PMI_cal as spc
@@ -14,16 +14,32 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("My App")
-        self.geometry("400x400")
+        self.geometry("400x300")
         self.resizable(0, 0)
 
+        # 添加一个标签：欢迎
+        self.label = tk.Label(self, text="豆瓣电影短评情感分析系统", font=("微软雅黑", 20))
+        self.label.pack(pady=10)
+
         # 添加一个按钮：豆瓣电影短评分析
-        self.btn_douban = tk.Button(self, text="豆瓣电影短评分析", command=self.douban)
-        self.btn_douban.pack()
+        self.btn_douban = tk.Button(self, text="豆瓣电影短评分析", command=self.douban,
+                                     width=15, height=3,bg="#5cb85c",
+                                     fg="#FFFFFF", activebackground="#4cae4c", activeforeground="#FFFFFF",
+                                     font=("微软雅黑", 12))
+        self.btn_douban.pack(pady=10)
 
         # 添加一个按钮：关于
-        self.btn_about = tk.Button(self, text="关于", command=self.about)
-        self.btn_about.pack()
+        self.btn_about = tk.Button(self, text="关于", command=self.about,
+                                   width=15, height=3,bg="#5bc0de",
+                                   fg="#FFFFFF", activebackground="#46b8da", activeforeground="#FFFFFF",
+                                   font=("微软雅黑", 12))
+        self.btn_about.pack(pady=10)
+
+        # 检测关闭窗口事件
+        def close():
+            self.destroy()
+            exit()
+        self.protocol("WM_DELETE_WINDOW", close)
 
     def about(self):
         # 一个新窗口，用于显示关于信息
@@ -31,6 +47,15 @@ class App(tk.Tk):
         about_window.title("关于")
         about_window.geometry("300x200")
         about_window.resizable(0, 0)
+
+        def on_closing():
+            self.deiconify()
+            about_window.destroy()
+            self.grab_set()
+
+        about_window.protocol("WM_DELETE_WINDOW", on_closing)
+        self.withdraw()
+        about_window.grab_set()
 
         # 关于信息
         about_text = tk.Label(about_window, text="这是一个关于信息")
@@ -40,35 +65,65 @@ class App(tk.Tk):
         # 一个新窗口，用于显示豆瓣电影短评分析
         douban_window = tk.Toplevel(self)
         douban_window.title("豆瓣电影短评分析")
-        douban_window.geometry("300x200")
+        douban_window.geometry("300x350")
         douban_window.resizable(0, 0)
+        douban_window.resizable(True, True)
+
+        def on_closing():
+            self.deiconify()
+            douban_window.destroy()
+            self.grab_set()
+
+        douban_window.protocol("WM_DELETE_WINDOW", on_closing)
+        self.withdraw()
+        douban_window.grab_set()
 
         # 一个输入框，用于输入电影编号
-        text = tk.Label(douban_window, text="请输入电影编号：")
+        text = tk.Label(douban_window, text="请输入电影编号：", font=("微软雅黑", 12))
         text.pack()
         douban_input = tk.Entry(douban_window)
-        douban_input.pack()
+        douban_input.pack(pady=10)
 
         douban_input.insert(0, "1292722")
 
+        # 一个标签，用于显示对电影编号的解释
+        explain_msg = "电影编号是电影在豆瓣网站上的唯一标识\n" \
+                        "可以在电影的网址中找到\n" \
+                        "例如：https://movie.douban.com/subject/1292722/\n" \
+                        "电影编号为：1292722\n" \
+                        "提供几个电影编号：1292722、1292052、1292789"
+        text = tk.Label(douban_window, text=explain_msg, font=("微软雅黑", 8))
+        text.pack()
+
         # 一个选项，用于选择聚类算法
         # 一个标签，用于显示聚类算法
-        text = tk.Label(douban_window, text="请选择聚类算法：")
-        text.pack()
+        # 标签和选项在同一行显示
+        cluster_frame = tk.Frame(douban_window)
+        cluster_frame.pack(pady=10)
+
+        text = tk.Label(cluster_frame, text="请选择聚类算法：")
         cluster_algorithm = tk.StringVar()
         cluster_algorithm.set("K-Means")
-        cluster_algorithm_menu = tk.OptionMenu(douban_window, cluster_algorithm, "DBSCAN", "K-Means")
-        cluster_algorithm_menu.pack()
+        cluster_algorithm_menu = tk.OptionMenu(cluster_frame, cluster_algorithm, "DBSCAN", "K-Means")
+
+        text.pack(side=tk.LEFT)
+        cluster_algorithm_menu.pack(side=tk.LEFT)
 
         # 一个选项，用于选择情感分析算法
         # 一个标签，用于显示情感分析算法
-        text = tk.Label(douban_window, text="请选择情感分析算法：")
-        text.pack()
+        # 标签和选项在下一行显示
+        emotion_frame = tk.Frame(douban_window)
+        emotion_frame.pack(pady=10)
+
+        text = tk.Label(emotion_frame, text="请选择情感分析算法：")
         # 一个下拉菜单，用于选择情感分析算法fv  qij-;/[x ]
         emotion_algorithm = tk.StringVar()
         emotion_algorithm.set("SO-PMI")
-        emotion_algorithm_menu = tk.OptionMenu(douban_window, emotion_algorithm, "SO-PMI", "朴素字典", "TextCNN")
-        emotion_algorithm_menu.pack()
+        emotion_algorithm_menu = tk.OptionMenu(emotion_frame, emotion_algorithm, "SO-PMI", "朴素字典", "TextCNN")
+        
+        text.pack(side=tk.LEFT)
+        emotion_algorithm_menu.pack(side=tk.LEFT)
+
 
         # 一个按钮，用于开始分析，点击后调用 douban_analyze 函数
         douban_btn = tk.Button(douban_window, text="开始分析", 
@@ -78,8 +133,10 @@ class App(tk.Tk):
                                         "cluster_algorithm": cluster_algorithm.get(),
                                         "sentiment_algorithm": emotion_algorithm.get()
                                     }
-                                   ))
-        douban_btn.pack()
+                                   ),
+                                width=10, height=2, font=("微软雅黑", 12)
+                                )
+        douban_btn.pack(pady=10)
 
 
     def douban_get_data(self, movie_id, func_args):
@@ -169,6 +226,8 @@ class App(tk.Tk):
         # 允许用户调节窗口大小
         douban_res_window.resizable(True, True)
 
+        douban_res_window.grab_set()
+
         # 一个标签，用于显示正面评论数
         good_comments_text = tk.Label(douban_res_window, text=f"正面评论数：{len(res['good_comments'])}")
         good_comments_text.pack()
@@ -253,14 +312,12 @@ class App(tk.Tk):
     
     def run(self):
         self.mainloop()
-
+        self.grab_set()
 
 
 def main():
     app = App()
     app.run()
-
-
 
 
 if __name__ == "__main__":
