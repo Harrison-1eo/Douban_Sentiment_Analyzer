@@ -79,7 +79,7 @@ def Cluster_LDA(num_topics=8, save_path='res\\output\\cluster\\LDA\\', file_name
     # plt.show()
 
 
-def draw_LDA(comments_list, save_path):
+def draw_LDA(comments_list, save_path, file_name):
     documents = []
     for line in comments_list:
         sentence_seged = jieba.posseg.cut(line.strip())

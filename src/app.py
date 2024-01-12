@@ -325,13 +325,13 @@ class App(tk.Tk):
         try:
             if res["cluster_algorithm"] == "K-Means":
                 from cluster import kmeans as km
-                km.draw_kmeans(res['comments'], path + "cluster.png")
+                km.draw_kmeans(res['comments'], path + "cluster.png", res['info']['name'])
             elif res["cluster_algorithm"] == "DBSCAN":
                 from cluster import dbscan as db
-                db.draw_dbscan(res['comments'], path + "cluster.png")
+                db.draw_dbscan(res['comments'], path + "cluster.png", res['info']['name'])
             elif res["cluster_algorithm"] == "LDA":
                 from cluster import LDA as ld
-                ld.draw_LDA(res['comments'], path + "cluster.png")
+                ld.draw_LDA(res['comments'], path + "cluster.png", res['info']['name'])
             else:
                 messagebox.showinfo("提示", "未知的聚类算法")
 

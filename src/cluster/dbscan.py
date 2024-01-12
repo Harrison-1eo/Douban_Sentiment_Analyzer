@@ -120,7 +120,7 @@ def Cluster_dbscan(file_path='res\\comments\\剧情\\千与千寻_200条影评.t
     plt.ylabel("feature space for the 2nd feature")
     plt.savefig(save_path + '_' + file_name + '_DBSCAN.png')
 
-def draw_dbscan(comments_list, save_path,eps=0.05, min_samples=3):
+def draw_dbscan(comments_list, save_path, file_name, eps=0.05, min_samples=3):
     corpus = []
     for comment in comments_list:
         sentence_seged = jieba.posseg.cut(comment.strip())

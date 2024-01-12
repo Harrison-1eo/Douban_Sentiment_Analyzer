@@ -208,7 +208,7 @@ def Cluster_kmeans(eps=0.05, min_samples=3, file_path='res\\comments\\剧情\\�
     plt.savefig(save_path + '_' + file_name + '_kmeans.png')
     # plt.show()
 
-def draw_kmeans(comments_list, save_path):
+def draw_kmeans(comments_list, save_path, file_name):
     corpus = []
     for comment in comments_list:
         sentence_seged = jieba.posseg.cut(comment.strip())
