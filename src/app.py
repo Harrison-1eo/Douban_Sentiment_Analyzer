@@ -101,7 +101,7 @@ class App(tk.Tk):
         text = tk.Label(cluster_frame, text="请选择聚类算法：")
         cluster_algorithm = tk.StringVar()
         cluster_algorithm.set("K-Means")
-        cluster_algorithm_menu = tk.OptionMenu(cluster_frame, cluster_algorithm, "DBSCAN", "K-Means")
+        cluster_algorithm_menu = tk.OptionMenu(cluster_frame, cluster_algorithm, "DBSCAN", "K-Means", "LDA")
 
         text.pack(side=tk.LEFT)
         cluster_algorithm_menu.pack(side=tk.LEFT)
@@ -329,6 +329,9 @@ class App(tk.Tk):
             elif res["cluster_algorithm"] == "DBSCAN":
                 from cluster import dbscan as db
                 db.draw_dbscan(res['comments'], path + "cluster.png")
+            elif res["cluster_algorithm"] == "LDA":
+                from cluster import LDA as ld
+                ld.draw_LDA(res['comments'], path + "cluster.png")
             else:
                 messagebox.showinfo("提示", "未知的聚类算法")
 
