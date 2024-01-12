@@ -8,7 +8,7 @@ sys.path.append("src")
 from src import preprocessing as pp
 
 # 汉字字体，优先使用楷体，找不到则使用黑体
-plt.rcParams['font.sans-serif'] = ['simsun', 'Kaitt', 'SimHei']
+plt.rcParams['font.sans-serif'] = ['simhei', 'simsun', 'kaitt']
  
 # 正常显示负号
 plt.rcParams['axes.unicode_minus'] = False
@@ -16,7 +16,7 @@ plt.rcParams['axes.unicode_minus'] = False
 
 def draw_pie_chart(data, labels, title, save_path):
     # 设置字体
-    my_font = font_manager.FontProperties(fname="C:\Windows\Fonts\simsun.ttc")
+    my_font = font_manager.FontProperties(fname="C:\Windows\Fonts\simhei.ttf")
 
     # 设置图形大小
     plt.figure(figsize=(5, 5), dpi=100)
@@ -44,7 +44,7 @@ def draw_cloud(data, save_path):
     
     # 2. 生成词云
     wc = wordcloud.WordCloud(
-        font_path="C:\Windows\Fonts\simsun.ttc",
+        font_path="C:\Windows\Fonts\simhei.ttf",
         background_color="white",
         width=1000,
         height=700,

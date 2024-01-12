@@ -5,6 +5,7 @@ import os
 sys.path.append(".")
 sys.path.append("src")
 from crawling import douban_comments_get as dcg
+from crawling import douban_info_get as dig
 from emotion_analysis.SO_PMI import SO_PMI_cal as spc
 from emotion_analysis.lexicon_weighted import LWS as lws
 from util import *
@@ -51,11 +52,9 @@ class App(tk.Tk):
         def on_closing():
             self.deiconify()
             about_window.destroy()
-            self.grab_set()
 
         about_window.protocol("WM_DELETE_WINDOW", on_closing)
         self.withdraw()
-        about_window.grab_set()
 
         # 关于信息
         about_text = tk.Label(about_window, text="这是一个关于信息")
@@ -72,11 +71,9 @@ class App(tk.Tk):
         def on_closing():
             self.deiconify()
             douban_window.destroy()
-            self.grab_set()
 
         douban_window.protocol("WM_DELETE_WINDOW", on_closing)
         self.withdraw()
-        douban_window.grab_set()
 
         # 一个输入框，用于输入电影编号
         text = tk.Label(douban_window, text="请输入电影编号：", font=("微软雅黑", 12))
@@ -182,14 +179,16 @@ class App(tk.Tk):
             messagebox.showinfo("提示", "未知的情感分析算法")
             return None
 
-                
         good_comments = [c for index, c in enumerate(comments) if scores[index] > 0]
         bad_comments = [c for index, c in enumerate(comments) if scores[index] < 0]
         mid_comments = [c for index, c in enumerate(comments) if scores[index] == 0]
 
+        movie_info = dig.get_info_by_id(str(id))
+
         # 返回分析结果
         res = {
             "id": id,
+            "info": movie_info,
             "sentiment_algorithm": func_args["sentiment_algorithm"],
             "cluster_algorithm": func_args["cluster_algorithm"],
             "comments": comments,
@@ -221,23 +220,50 @@ class App(tk.Tk):
         # 新建一个窗口，用于展示分析结果
         douban_res_window = tk.Toplevel(self)
         douban_res_window.title("分析结果")
-        douban_res_window.geometry("600x800")
+        douban_res_window.geometry("1100x800")
         douban_res_window.resizable(0, 0)
         # 允许用户调节窗口大小
         douban_res_window.resizable(True, True)
 
-        douban_res_window.grab_set()
+        header_frame = tk.Frame(douban_res_window)
+        header_frame.pack(pady=10, padx=20, anchor=tk.W)
+
+        info_frame = tk.Frame(header_frame)
+        info_frame.pack(pady=10, side=tk.LEFT)
+
+        # 一个标签，用于显示电影名称
+        name_text = tk.Label(info_frame, text=f"{res['info']['name']}", font=("微软雅黑", 20))
+        director_text = tk.Label(info_frame, text=f"导演：{res['info']['director']}")
+        scriptwriter_text = tk.Label(info_frame, text=f"编剧：{res['info']['scriptwriter']}")
+        actors_text = tk.Label(info_frame, text=f"主演：{res['info']['actors']}")
+        genre_text = tk.Label(info_frame, text=f"类型：{res['info']['genre']}")
+        country_text = tk.Label(info_frame, text=f"制片国家/地区：{res['info']['country']}")
+        language_text = tk.Label(info_frame, text=f"语言：{res['info']['language']}")
+        release_date_text = tk.Label(info_frame, text=f"上映日期：{res['info']['release_date']}")
+
+        # 每个标签一行显示，左对齐
+        name_text.pack(anchor=tk.W)
+        director_text.pack(anchor=tk.W)
+        scriptwriter_text.pack(anchor=tk.W)
+        actors_text.pack(anchor=tk.W)
+        genre_text.pack(anchor=tk.W)
+        country_text.pack(anchor=tk.W)
+        language_text.pack(anchor=tk.W)
+        release_date_text.pack(anchor=tk.W)
+
+        num_frame = tk.Frame(header_frame, width=200)
+        num_frame.pack(pady=10, padx=200, anchor=tk.CENTER, side=tk.RIGHT)
 
         # 一个标签，用于显示正面评论数
-        good_comments_text = tk.Label(douban_res_window, text=f"正面评论数：{len(res['good_comments'])}")
+        good_comments_text = tk.Label(num_frame, text=f"正面评论数：{len(res['good_comments'])}")
         good_comments_text.pack()
 
         # 一个标签，用于显示负面评论数
-        bad_comments_text = tk.Label(douban_res_window, text=f"负面评论数：{len(res['bad_comments'])}")
+        bad_comments_text = tk.Label(num_frame, text=f"负面评论数：{len(res['bad_comments'])}")
         bad_comments_text.pack()
 
         # 一个标签，用于显示中性评论数
-        mid_comments_text = tk.Label(douban_res_window, text=f"中性评论数：{len(res['mid_comments'])}")
+        mid_comments_text = tk.Label(num_frame, text=f"中性评论数：{len(res['mid_comments'])}")
         mid_comments_text.pack()
 
         # 载入并缩放图像
@@ -262,57 +288,83 @@ class App(tk.Tk):
                 path + "pie.png"
             )
         
+        # pic_frame 换行居中显示
+        pic_frame = tk.Frame(douban_res_window)
+        pic_frame.pack(pady=10, padx=20, anchor=tk.CENTER)
+
+        pie_frame = tk.Frame(pic_frame)
+        pie_frame.pack(side=tk.LEFT)
+
+        cloud_frame = tk.Frame(pic_frame)
+        cloud_frame.pack(side=tk.LEFT)
+
+        cluster_frame = tk.Frame(pic_frame)
+        cluster_frame.pack(side=tk.LEFT)
+
         # 一个标签，用于显示饼状图
-        pie_text = tk.Label(douban_res_window, text="饼状图：")
+        pie_text = tk.Label(pie_frame, text="情感分析饼状图")
         pie_text.pack()
 
         # 一个标签，用于显示饼状图
-        pie_img = ImageTk.PhotoImage(load_and_resize_image(path + "pie.png"))
-        pie_img_label = tk.Label(douban_res_window, image=pie_img)
+        pie_img = ImageTk.PhotoImage(load_and_resize_image(path + "pie.png", (250, 250)))
+        pie_img_label = tk.Label(pie_frame, image=pie_img)
         pie_img_label.pack()
         
         # 展示词云图
         draw_cloud(res['comments'], path + "cloud.png")
         # 一个标签，用于显示词云图
-        cloud_text = tk.Label(douban_res_window, text="词云图：")
+        cloud_text = tk.Label(cloud_frame, text="词云图")
         cloud_text.pack()
 
         # 一个标签，用于显示词云图
-        cloud_img = ImageTk.PhotoImage(load_and_resize_image(path + "cloud.png"))
-        cloud_img_label = tk.Label(douban_res_window, image=cloud_img)
+        cloud_img = ImageTk.PhotoImage(load_and_resize_image(path + "cloud.png", (400, 250)))
+        cloud_img_label = tk.Label(cloud_frame, image=cloud_img)
         cloud_img_label.pack()
 
         # 展示聚类图
-        if res["cluster_algorithm"] == "K-Means":
-            from cluster import kmeans as km
-            km.draw_kmeans(res['comments'], path + "cluster.png")
-        elif res["cluster_algorithm"] == "DBSCAN":
-            from cluster import dbscan as db
-            db.draw_dbscan(res['comments'], path + "cluster.png")
-        else:
-            messagebox.showinfo("提示", "未知的聚类算法")
-        # 一个标签，用于显示聚类图
-        cluster_text = tk.Label(douban_res_window, text="聚类图：")
-        cluster_text.pack()
+        try:
+            if res["cluster_algorithm"] == "K-Means":
+                from cluster import kmeans as km
+                km.draw_kmeans(res['comments'], path + "cluster.png")
+            elif res["cluster_algorithm"] == "DBSCAN":
+                from cluster import dbscan as db
+                db.draw_dbscan(res['comments'], path + "cluster.png")
+            else:
+                messagebox.showinfo("提示", "未知的聚类算法")
 
-        # 一个标签，用于显示聚类图
-        cluster_img = ImageTk.PhotoImage(load_and_resize_image(path + "cluster.png"))
-        cluster_img_label = tk.Label(douban_res_window, image=cluster_img)
-        cluster_img_label.pack()
+                
+            # 一个标签，用于显示聚类图
+            cluster_text = tk.Label(cluster_frame, text="聚类图")
+            cluster_text.pack()
 
+            # 一个标签，用于显示聚类图
+            cluster_img = ImageTk.PhotoImage(load_and_resize_image(path + "cluster.png", (400, 250)))
+            cluster_img_label = tk.Label(cluster_frame, image=cluster_img)
+            cluster_img_label.pack()
+        except Exception as e:
+            print(e)
+            print("聚类失败")
+            # messagebox.showinfo("提示", "聚类失败")
+
+        best_comments_frame = tk.Frame(douban_res_window)
+        best_comments_frame.pack(pady=10, padx=20, anchor=tk.W)
+
+        # 显示正面评论得分最高的三条评论
         if res["sentiment_algorithm"] != "TextCNN":
-            # 显示正面评论得分最高的十条评论
-            good_comments_text = tk.Label(douban_res_window, text="正面评论得分最高的十条评论：")
-            good_comments_text.pack()
+            
+            good_comments_text = tk.Label(best_comments_frame, text="正面评论得分最高的几条评论：")
+            good_comments_text.pack(anchor=tk.W)
             comments_scores.sort(key=lambda x: x[1], reverse=True)
-            for i in range(10):
-                good_comment_text = tk.Label(douban_res_window, text=f"{comments_scores[i][0]} >>> 得分：{comments_scores[i][1]}")
-                good_comment_text.pack()
+            for i in range(3):
+                text=f"{comments_scores[i][0]} >>> 得分：{comments_scores[i][1]}"
+                # 一个标签，用于显示正面评论得分最高的三条评论
+                # 设置标签的宽度为1000，高度为自动调整，左对齐，自动换行
+                good_comments_text = tk.Label(best_comments_frame, text=text, wraplength=1000, anchor=tk.W, justify=tk.LEFT)
+                good_comments_text.pack(pady=10)
 
     
     def run(self):
         self.mainloop()
-        self.grab_set()
 
 
 def main():
