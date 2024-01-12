@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import os
 import re
 import jieba
@@ -101,8 +101,10 @@ def Cluster_dbscan(file_path='res\\comments\\剧情\\千与千寻_200条影评.t
     # 轮廓系数评价聚类的好坏
     sihouette = silhouette_score(weight, labels)
     calinski_harabasz = calinski_harabasz_score(weight, labels)
+    davies_bouldin = davies_bouldin_score(weight, labels)
     print("轮廓系数:", sihouette)
     print("Calinski-Harabasz Index:", calinski_harabasz)
+    print("Davies-Bouldin Index:", davies_bouldin)
     # 每个样本所属的簇
     print("每个样本所属的簇:", labels)
 
