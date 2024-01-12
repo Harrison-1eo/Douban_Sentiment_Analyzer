@@ -94,7 +94,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
 import os
 import re
 import jieba
@@ -186,8 +186,13 @@ def Cluster_kmeans(eps=0.05, min_samples=3, file_path='res\\comments\\剧情\\�
     clf = KMeans(n_clusters=8)
     # clf = K_Means(k=len(corpus) // 8)
     s = clf.fit(weight)
-    print(clf.labels_)
     labels = clf.labels_
+
+    sihouette = silhouette_score(weight, labels)
+    calinski_harabasz = calinski_harabasz_score(weight, labels)
+    print("轮廓系数:", sihouette)
+    print("Calinski-Harabasz Index:", calinski_harabasz)
+    print(clf.labels_)
 
     pca = PCA(n_components=2).fit(weight)
     datapoint = pca.transform(weight)
